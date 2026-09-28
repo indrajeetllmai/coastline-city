@@ -133,3 +133,7 @@ Open the public play link in a WebGL-capable mobile browser. Touch controls acti
 Menus scroll on small screens and controls account for phone safe areas. Touch input is cleared on release, cancellation, focus loss, orientation changes and menu opening. Mobile rendering uses a capped pixel ratio, smaller shadow maps, and fewer nearby world chunks. The world still streams as you travel.
 
 `?mobile=1&mobilecheck=1` runs touch movement, simultaneous look/move/boost, car controls, pause/reset safety, screen-fit and rendering-budget checks. Viewport tests emulate phone dimensions in a desktop browser; performance varies by physical phone.
+
+## Always-available joystick (v14)
+
+On the start screen, tap **Enable touch joystick**, then **Enter the city**. A clearly labelled joystick appears at bottom-left: drag up/down to walk or accelerate/reverse, and left/right to steer. Move the camera by dragging the world. Joystick support still activates automatically on phones, tablets and narrow screens. The manual choice is remembered on this browser. During play, **Menu → Show joystick** or **Help → Show touch joystick** enables it again. Controls hide while a menu, sleep sequence or flight blocks movement.

@@ -4,8 +4,9 @@ import {RGBELoader} from './vendor/RGBELoader.js';
 import {DRACOLoader} from './vendor/DRACOLoader.js';
 import {clone} from './vendor/SkeletonUtils.js';
 const $=id=>document.getElementById(id);
-const touchHardware=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
-let mobileLayout=touchHardware||innerWidth<=900||new URLSearchParams(location.search).has('mobile');
+const touchHardware=matchMedia('(any-pointer:coarse)').matches||navigator.maxTouchPoints>0;
+let manualTouch=false;try{manualTouch=localStorage.getItem('coastline-joystick')==='on';}catch{}
+let mobileLayout=manualTouch||touchHardware||innerWidth<=900||new URLSearchParams(location.search).has('mobile');
 const scene=new THREE.Scene();scene.background=new THREE.Color('#d6b6a0');scene.fog=new THREE.FogExp2('#d6b6a0',.0028);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,1100);
 let renderer;
@@ -529,10 +530,11 @@ var touchState,mobileControlsReady,mobileMenuWasPaused;
 function controlInput(){const kf=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),kt=(keys.has('KeyA')||keys.has('ArrowLeft')?1:0)-(keys.has('KeyD')||keys.has('ArrowRight')?1:0),active=mobileLayout&&touchState&&!touchBlocked();const forward=kf|| (active?touchState.forward:0),turn=kt||(active?touchState.turn:0);return{forward,turn,strength:kf||kt?1:Math.min(1,Math.hypot(forward,turn)),boost:keys.has('ShiftLeft')||keys.has('ShiftRight')||!!(active&&touchState.boost),brake:keys.has('Space')||!!(active&&touchState.brake)};}
 function touchBlocked(){return !started||paused||sleeping||flightInProgress||liftBusy||document.body.classList.contains('room-open');}
 function resetTouch(){if(!touchState)return;touchState.forward=touchState.turn=0;touchState.boost=touchState.brake=false;touchState.pointer=null;for(const release of touchState.releaseHolds||[])release();$('stickThumb').style.transform='translate(0px,0px)';for(const id of ['touchBoost','touchBrake'])$(id).classList.remove('held');}
-function resizeMobileUI(){mobileLayout=touchHardware||innerWidth<=900||new URLSearchParams(location.search).has('mobile');document.body.classList.toggle('touch-ui',mobileLayout);$('mobileMenuButton').classList.toggle('hidden',!mobileLayout);$('roomToggle').classList.toggle('hidden',!mobileLayout);renderer.setPixelRatio(Math.min(devicePixelRatio,mobileLayout?1.2:1.65));resetTouch();stopLook();if(!mobileLayout){document.body.classList.remove('room-open');if(!$('mobileMenuPanel').classList.contains('hidden'))closeMobileMenu();}updateWorld(player.pos,true);}
+function resizeMobileUI(){mobileLayout=manualTouch||touchHardware||innerWidth<=900||new URLSearchParams(location.search).has('mobile');document.body.classList.toggle('touch-ui',mobileLayout);$('enableJoystick').textContent=mobileLayout?'Touch joystick enabled ✓':'Enable touch joystick';$('enableJoystick').setAttribute('aria-pressed',String(mobileLayout));$('mobileMenuButton').classList.toggle('hidden',!mobileLayout);$('roomToggle').classList.toggle('hidden',!mobileLayout);renderer.setPixelRatio(Math.min(devicePixelRatio,mobileLayout?1.2:1.65));resetTouch();stopLook();if(!mobileLayout){document.body.classList.remove('room-open');if(!$('mobileMenuPanel').classList.contains('hidden'))closeMobileMenu();}updateWorld(player.pos,true);}
 function openMobileMenu(){if(!started||sleeping||flightInProgress||liftBusy)return;if(!$('mobileMenuPanel').classList.contains('hidden')){closeMobileMenu();return;}mobileMenuWasPaused=paused;paused=true;keys.clear();resetTouch();stopLook();document.body.classList.remove('room-open');$('mobileMenuPanel').classList.remove('hidden');$('closeMobileMenu').focus();}
 function closeMobileMenu(){if($('mobileMenuPanel').classList.contains('hidden'))return;$('mobileMenuPanel').classList.add('hidden');paused=!!mobileMenuWasPaused;keys.clear();resetTouch();}
 function initializeMobileControls(){
+ $('enableJoystick').onclick=enableJoystick;$('helpJoystick').onclick=()=>{if(!$('helpPanel').classList.contains('hidden'))toggleHelp();enableJoystick();};
  touchState={pointer:null,forward:0,turn:0,boost:false,brake:false,releaseHolds:[]};mobileControlsReady=true;mobileMenuWasPaused=false;
  const stick=$('moveStick');const point=e=>{const rect=stick.getBoundingClientRect(),radius=rect.width*.34;let x=(e.clientX-rect.left-rect.width/2)/radius,y=(e.clientY-rect.top-rect.height/2)/radius;const length=Math.hypot(x,y);if(length>1){x/=length;y/=length;}const magnitude=Math.min(1,length),amount=magnitude<.13?0:(magnitude-.13)/.87;touchState.turn=magnitude?-x/magnitude*amount:0;touchState.forward=magnitude?-y/magnitude*amount:0;$('stickThumb').style.transform=`translate(${x*radius}px,${y*radius}px)`;};
  stick.addEventListener('pointerdown',e=>{if(touchBlocked()||touchState.pointer!==null)return;e.preventDefault();if(homeActivity)standUpHome();touchState.pointer=e.pointerId;if(e.isTrusted)stick.setPointerCapture(e.pointerId);point(e);});
@@ -542,7 +544,7 @@ function initializeMobileControls(){
  for(const [id,property] of [['touchBoost','boost'],['touchBrake','brake']]){const button=$(id);let pointer=null;touchState.releaseHolds.push(()=>{pointer=null;});button.addEventListener('pointerdown',e=>{if(touchBlocked()||pointer!==null)return;e.preventDefault();pointer=e.pointerId;touchState[property]=true;button.classList.add('held');if(e.isTrusted)button.setPointerCapture(e.pointerId);});const up=e=>{if(e.pointerId===pointer){pointer=null;touchState[property]=false;button.classList.remove('held');}};for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,up);addEventListener('blur',()=>{pointer=null;});document.addEventListener('visibilitychange',()=>{pointer=null;});}
  $('touchInteract').onclick=()=>{if(touchBlocked())return;resetTouch();if(homeActivity)standUpHome();else interact();};
  $('touchCamera').onclick=()=>{if(touchBlocked())return;wide=!wide;yaw=0;pitch=.15;};$('touchPause').onclick=openMobileMenu;$('mobileMenuButton').onclick=openMobileMenu;$('closeMobileMenu').onclick=closeMobileMenu;
- const actions=[['Character',()=>toggleCharacters()],['City & jobs',openCityDirectory],['My home',openHomes],['Airport route',()=>$('airportButton').click()],['Bus station',()=>showTransport('bus')],['Railway station',()=>showTransport('rail')],['Ride bike',()=>$('bikeButton').click()],['Day / sunset',()=>$('day').click()],['Controls & help',toggleHelp],['Reset to waterfront',reset]];
+ const actions=[['Character',()=>toggleCharacters()],['City & jobs',openCityDirectory],['My home',openHomes],['Airport route',()=>$('airportButton').click()],['Bus station',()=>showTransport('bus')],['Railway station',()=>showTransport('rail')],['Ride bike',()=>$('bikeButton').click()],['Day / sunset',()=>$('day').click()],['Controls & help',toggleHelp],['Reset to waterfront',reset],['Show joystick',enableJoystick]];
  for(const [label,run] of actions){const button=document.createElement('button');button.textContent=label;button.onclick=()=>{closeMobileMenu();run();};$('mobileMenuActions').appendChild(button);}
  $('roomToggle').onclick=()=>{if(sleeping||liftBusy)return;const open=document.body.classList.toggle('room-open');$('roomToggle').setAttribute('aria-expanded',String(open));resetTouch();stopLook();};
  $('insideInfo').addEventListener('click',e=>{if(e.target.closest('button')&&e.target.id!=='roomToggle'){document.body.classList.remove('room-open');$('roomToggle').setAttribute('aria-expanded','false');resetTouch();}});
@@ -550,12 +552,13 @@ function initializeMobileControls(){
  resizeMobileUI();
 }
 function updateMobileHUD(){if(!mobileControlsReady)return;const blocked=touchBlocked();$('touchControls').classList.toggle('hidden',!mobileLayout||!started||blocked);if(blocked)resetTouch();document.body.classList.toggle('mobile-modal',mobileLayout&&paused);if(!interiorState)document.body.classList.remove('room-open');
- if(!mobileLayout)return;$('stickLabel').textContent=driving?'↑ GAS · ↓ REVERSE':'MOVE';$('touchBoost').textContent=driving?'Boost':'Run';$('touchBrake').disabled=!driving;$('touchBrake').style.opacity=driving?'1':'.35';$('touchInteract').textContent=homeActivity?'Stand up':driving?'Exit':!$('interact').classList.contains('hidden')?$('interact').querySelector('span').textContent.replace(/ · .*/, '').replace('Choose a country','Departures'):'Interact';
+ if(!mobileLayout)return;$('stickLabel').textContent=driving?'JOYSTICK · GAS / STEER':'JOYSTICK · MOVE';$('touchBoost').textContent=driving?'Boost':'Run';$('touchBrake').disabled=!driving;$('touchBrake').style.opacity=driving?'1':'.35';$('touchInteract').textContent=homeActivity?'Stand up':driving?'Exit':!$('interact').classList.contains('hidden')?$('interact').querySelector('span').textContent.replace(/ · .*/, '').replace('Choose a country','Departures'):'Interact';
  if(!started&&humanReady&&carsReady)$('loading').textContent='Ready · Touch controls enabled';
 }
 if(new URLSearchParams(location.search).has('mobilecheck')){(async()=>{
- const wait=ms=>new Promise(r=>setTimeout(r,ms)),results=[],check=(name,pass)=>results.push({name,pass:!!pass});
+ const wait=ms=>new Promise(r=>setTimeout(r,ms)),results=[],check=(name,pass)=>results.push({name,pass:!!pass});const savedJoystick=localStorage.getItem('coastline-joystick'),savedManualTouch=manualTouch;
  try{for(let i=0;i<400&&(!humanReady||!carsReady);i++)await wait(100);$('start').click();await wait(150);
+ $('enableJoystick').click();check('Manual joystick switch enables controls',manualTouch&&mobileLayout);check('Joystick choice persists',localStorage.getItem('coastline-joystick')==='on');resizeMobileUI();check('Manual joystick survives resizing',manualTouch&&mobileLayout);
  check('Phone viewport '+innerWidth+' × '+innerHeight,innerWidth<=900);
  check('Mobile layout and touch controls enabled',mobileLayout&&document.body.classList.contains('touch-ui')&&!$('touchControls').classList.contains('hidden'));
  const stick=$('moveStick'),rect=stick.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
@@ -567,11 +570,14 @@ if(new URLSearchParams(location.search).has('mobilecheck')){(async()=>{
  reset();$('touchInteract').click();check('Touch interaction enters parked car',!!driving);const beforeCar=driving?.position.clone();pointer(stick,'pointerdown',6,cx,cy-rect.width*.34);await wait(600);pointer(stick,'pointerup',6);check('Touch throttle drives vehicle',!!driving&&driving.position.distanceTo(beforeCar)>.1);pointer($('touchBrake'),'pointerdown',7,0,0);check('Touch handbrake applies',controlInput().brake);pointer($('touchBrake'),'pointercancel',7);velocity=0;$('touchInteract').click();check('Touch interaction exits vehicle',!driving);
  pointer(stick,'pointerdown',8,cx,cy-rect.width*.34);pointer($('touchBoost'),'pointerdown',9,0,0);openMobileMenu();check('Menu pauses and clears held controls',paused&&touchState.forward===0&&!touchState.boost);closeMobileMenu();check('Closing menu resumes',!paused);pointer($('touchBoost'),'pointerdown',10,0,0);check('Hold control works again after menu reset',controlInput().boost);pointer($('touchBoost'),'pointerup',10);
  pointer(stick,'pointerdown',11,cx,cy-rect.width*.34);window.dispatchEvent(new Event('blur'));check('Focus loss clears controls',touchState.pointer===null&&controlInput().forward===0);
- check('Compact menu exposes all essential destinations',$('mobileMenuActions').children.length===10);
+ check('Compact menu exposes all essential destinations',$('mobileMenuActions').children.length===11);
  check('All touch controls fit within screen',['moveStick','touchInteract','touchBoost','touchCamera','touchPause'].every(id=>{const r=$(id).getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth+.5&&r.bottom<=innerHeight+.5;}));
  check('Rendering pixel ratio capped for mobile',renderer.getPixelRatio()<=1.2);check('Mobile chunk streaming bounded',worldChunks.size<=25);
  check('No horizontal page overflow',document.documentElement.scrollWidth<=innerWidth);
  reset();paused=true;
  }catch(e){results.push({name:'Unexpected error: '+e.message,pass:false});console.error(e);}
+ if(savedJoystick===null)localStorage.removeItem('coastline-joystick');else localStorage.setItem('coastline-joystick',savedJoystick);manualTouch=savedManualTouch;resizeMobileUI();
  const report=document.createElement('pre');report.id='mobile-results';report.style='position:fixed;left:12px;right:12px;top:70px;max-height:65vh;overflow:auto;background:#132e36;color:white;padding:14px;z-index:200;font:10px monospace';report.textContent=JSON.stringify(results,null,2);document.body.append(report);console.log('MOBILE CHECK',JSON.stringify(results));
 })();}
+
+function enableJoystick(){manualTouch=true;try{localStorage.setItem('coastline-joystick','on');}catch{}resizeMobileUI();updateMobileHUD();if(started)toast('Joystick ready · Drag the bottom-left stick to move or steer');}
