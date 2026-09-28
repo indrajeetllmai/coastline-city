@@ -1,6 +1,6 @@
 # Coastline — Open City
 
-A GTA-inspired desktop browser prototype with an explorable coastal neighborhood, animated human characters, traffic, driveable cars, building collisions, a minimap, and a three-stop driving route.
+A GTA-inspired browser prototype with desktop and touch controls, an explorable coastal neighborhood, animated human characters, traffic, driveable cars, building collisions, a minimap, and a three-stop driving route.
 
 **[Play in your browser](https://indrajeetllmai.github.io/coastline-city/)** · [Public source repository](https://github.com/indrajeetllmai/coastline-city)
 
@@ -12,7 +12,7 @@ On macOS, double-click `Play.command`, or run `python3 launch.py`. To choose a f
 python3 -m http.server 8879
 ```
 
-Then open http://localhost:8879 in Chrome, Safari, or another WebGL-capable browser. The game requires HTTP serving; opening index.html directly will not load the model and JavaScript modules.
+Then open http://localhost:8879 in Chrome, Safari, or another WebGL-capable browser. On a phone, use the public play link above. The game requires HTTP serving; opening index.html directly will not load the model and JavaScript modules.
 
 ## Controls
 
@@ -31,7 +31,7 @@ Then open http://localhost:8879 in Chrome, Safari, or another WebGL-capable brow
 - Escape / ?: pause and controls
 - ◐: sunset / daylight
 
-An original small prototype, not the actual GTA 6. The people use a textured, animated human model with realistic proportions; the city architecture is procedural. Choose between five characters (Remy, James, Sophie, Nova, AX-7). The crowd mixes human characters, with clothing tint and height variations. Procedural limb animation uses leg IK, and pedestrians turn before changing direction. Trees, lamps, benches, buildings, and parked vehicles block player movement; vehicle collision uses rotated outlines taken from the visible car body, with short movement steps to prevent tunnelling. Traffic brakes for other vehicles. Includes furnished interiors, homes, shops, transport jobs, flights and locally saved wallet/home choices. No combat or full story campaign. Desktop keyboard required.
+An original small prototype, not the actual GTA 6. The people use a textured, animated human model with realistic proportions; the city architecture is procedural. Choose between five characters (Remy, James, Sophie, Nova, AX-7). The crowd mixes human characters, with clothing tint and height variations. Procedural limb animation uses leg IK, and pedestrians turn before changing direction. Trees, lamps, benches, buildings, and parked vehicles block player movement; vehicle collision uses rotated outlines taken from the visible car body, with short movement steps to prevent tunnelling. Traffic brakes for other vehicles. Includes furnished interiors, homes, shops, transport jobs, flights and locally saved wallet/home choices. No combat or full story campaign. Desktop keyboard and mobile touch controls are supported.
 
 ## Attribution
 
@@ -118,3 +118,18 @@ This repository contains the complete static game, including its local model ass
 - **Aircraft:** airliners cycle through takeoff, overhead flight and landing at every airport. A cleared boarding pass now starts a visible takeoff camera sequence before arrival. Aircraft, buses and trains are not player-pilotable.
 
 `?citylifecheck=1` checks street entry routing, shop contents, lobbies and neighbours, lift travel, home keys, sitting/eating/sleeping, station access, aircraft motion and boarding/arrival.
+
+## Mobile controls (v13)
+
+Open the public play link in a WebGL-capable mobile browser. Touch controls activate on touch devices and small screens. Portrait and landscape layouts are supported; landscape provides a wider view.
+
+- **Left joystick:** walk or swim; while driving, up accelerates, down brakes/reverses, and left/right steer.
+- **Drag the world:** look around, including while moving with the joystick.
+- **Interact:** use the nearby entrance, cashier, resident, station or vehicle. The button changes its label to match the action.
+- **Run / Boost:** hold while moving. **Brake:** hold while driving. **Camera:** change camera distance and recenter.
+- **Menu:** characters, home, city jobs, airport, bus/railway stations, bike, time of day, help and reset.
+- **Room actions:** inside a building, expand this panel for the lift or your home's sit/eat/sleep buttons.
+
+Menus scroll on small screens and controls account for phone safe areas. Touch input is cleared on release, cancellation, focus loss, orientation changes and menu opening. Mobile rendering uses a capped pixel ratio, smaller shadow maps, and fewer nearby world chunks. The world still streams as you travel.
+
+`?mobile=1&mobilecheck=1` runs touch movement, simultaneous look/move/boost, car controls, pause/reset safety, screen-fit and rendering-budget checks. Viewport tests emulate phone dimensions in a desktop browser; performance varies by physical phone.
