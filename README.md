@@ -2,6 +2,8 @@
 
 A GTA-inspired desktop browser prototype with an explorable coastal neighborhood, animated human characters, traffic, driveable cars, building collisions, a minimap, and a three-stop driving route.
 
+**[Play in your browser](https://indrajeetllmai.github.io/coastline-city/)** · [Public source repository](https://github.com/indrajeetllmai/coastline-city)
+
 ## Run
 
 On macOS, double-click `Play.command`, or run `python3 launch.py`. To choose a fixed port, from this folder run:
@@ -105,4 +107,4 @@ Press **H** and choose **AX-7** to wear a graphite and metallic robotic suit wit
 
 Public repository: https://github.com/indrajeetllmai/coastline-city
 
-This repository contains the complete static game, including its local model assets and Three.js dependencies. Future game changes should be verified, committed and published to this repository as part of the same update. GitHub Pages, when enabled for `main` at the repository root, redeploys after each published update. Local browser saves are not uploaded.
+This repository contains the complete static game, including its local model assets and Three.js dependencies. Future game changes should be verified, committed and published to this repository as part of the same update. GitHub Pages is enabled for `main` at the repository root and redeploys after each published update. Local browser saves are not uploaded.
