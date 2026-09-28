@@ -67,11 +67,11 @@ The walking cycle now moves the planted foot backward relative to the advancing 
 
 Click **✈ Airport** to mark the nearest terminal on the minimap. The home airport is east of the original city, at the end of the eastbound road (x=300, z=20). Park and walk through the terminal entrance, then press **E** to open Departures. Choose India, Japan, France, the United Arab Emirates, the United States, or the United Kingdom. A short flight transition takes you to a separate procedural district with its own airport and a parked rental car. Select Coastline to return to the original city; nothing in the home city is removed.
 
-Destinations are fictional, country-inspired districts with different building palettes, not geographic recreations. Aircraft are scenery, not pilotable. Use `?airportcheck=1` for terminal access, every destination, safe arrivals, and return-flight checks.
+Destinations are fictional, country-inspired districts with different building palettes, not geographic recreations. Aircraft now take off, cruise over the city and land; they are not pilotable. Boarding a flight shows a takeoff sequence before arrival. Use `?airportcheck=1` for terminal access, every destination, safe arrivals, and return-flight checks.
 
 ## Buildings and homes (v8)
 
-Walk up to a tan entrance door on a city building and press **E** to enter a furnished apartment interior. Explore the living room, bedroom, kitchen and dining area with WASD. Furniture and walls block movement. Press **E** near the entry door, or click **Exit building**, to return to the same street. City buildings use a shared interior layout with different home palettes; these are separate interior spaces, not every floor of the external tower.
+Walk up to an **APARTMENTS · LOBBY** entrance and press **E** to enter the shared lobby. Use the lift for floors 1–3 and press E at apartment doors. Only apartment 201 on floor 2 in your chosen building is your home. Other doors belong to neighbours. The opposite **MARKET** entrance opens a retail shop with a cashier. Explore the living room, bedroom, kitchen and dining area with WASD. Furniture and walls block movement. Press **E** near the entry door, or click **Exit building**, to return to the same street. Apartment buildings have a shared lobby and three accessible residential floors, with neighbours and a working lift. Chosen apartments use a furnished layout with different palettes. Interiors are separate spaces rather than a recreation of every external tower floor.
 
 Click **⌂ Homes** to select Palm Courtyard, City Loft, or Skyline Residence and move in. Your home selection persists in this browser's local storage. **Go to my home** returns you there. The city, airport, country travel, vehicles, and swimming remain available outside. `?homecheck=1` tests all three homes, indoor movement, furniture and wall collision, exterior return positions, and ordinary building entry.
 
@@ -108,3 +108,13 @@ Press **H** and choose **AX-7** to wear a graphite and metallic robotic suit wit
 Public repository: https://github.com/indrajeetllmai/coastline-city
 
 This repository contains the complete static game, including its local model assets and Three.js dependencies. Future game changes should be verified, committed and published to this repository as part of the same update. GitHub Pages is enabled for `main` at the repository root and redeploys after each published update. Local browser saves are not uploaded.
+
+## Building and city-life fixes (v12)
+
+- **Shops:** the MARKET side of a building opens shelves, a cashier and purchases. The APARTMENTS side opens a shared lobby. Signs and interaction prompts match the destination, including procedural districts.
+- **Apartments:** meet residents and reception in the lobby; use **Use lift** or E beside the lift to choose ground or floors 1–3. Your apartment is **201, floor 2**, in your chosen building. Neighbour apartments stay private. Moving to another home revokes the old home.
+- **At home:** use **Sit on sofa**, **Eat a meal**, or **Sleep until morning** in the right-side panel. These put you at the appropriate furniture. E also works beside the sofa, dining table or bed. Move or press E to stand up. A meal uses one owned snack, or costs $8, and restores 35 energy. Sleep restores 100 energy and advances to 07:00.
+- **Stations:** persistent **Bus station** and **Railway station** buttons show distance, a map route, or direct travel to the entrance. Walk forward and press E for tickets and paid shifts. The minimap always labels B (bus), R (rail), and A (airport). The home-city stations are at x=180, z=-260 (bus) and x=180, z=280 (rail). Each destination has its own stations.
+- **Aircraft:** airliners cycle through takeoff, overhead flight and landing at every airport. A cleared boarding pass now starts a visible takeoff camera sequence before arrival. Aircraft, buses and trains are not player-pilotable.
+
+`?citylifecheck=1` checks street entry routing, shop contents, lobbies and neighbours, lift travel, home keys, sitting/eating/sleeping, station access, aircraft motion and boarding/arrival.
