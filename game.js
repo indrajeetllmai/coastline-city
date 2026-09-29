@@ -3,7 +3,7 @@ import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {RGBELoader} from './vendor/RGBELoader.js';
 import {DRACOLoader} from './vendor/DRACOLoader.js';
 import {clone} from './vendor/SkeletonUtils.js';
-const $=id=>document.getElementById(id);
+const $=id=>document.getElementById(id);window.addEventListener('error',e=>{const el=document.getElementById('error');if(el){el.classList.remove('hidden');el.textContent='Render error: '+(e.error?.stack||e.message);}});
 const touchHardware=matchMedia('(any-pointer:coarse)').matches||navigator.maxTouchPoints>0;
 let manualTouch=false;try{manualTouch=localStorage.getItem('coastline-joystick')==='on';}catch{}
 let mobileLayout=manualTouch||touchHardware||innerWidth<=900||new URLSearchParams(location.search).has('mobile');
@@ -91,7 +91,7 @@ function buildChunk(cx,cz){const group=new THREE.Group(),boxes=[],batches=new Ma
  for(const [material,items] of batches){const mesh=new THREE.InstancedMesh(geoBox,material,items.length),dummy=new THREE.Object3D();items.forEach(([w,h,d,x,y,z],i)=>{dummy.position.set(x,y,z);dummy.scale.set(w,h,d);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);});mesh.castShadow=true;mesh.receiveShadow=true;mesh.computeBoundingSphere();group.add(mesh);}scene.add(group);return{group,colliders:boxes,cx,cz};}
 let lastChunkKey='';function updateWorld(pos,force=false){if(interiorState)return;const cx=Math.floor(pos.x/CHUNK),cz=Math.floor(pos.z/CHUNK),key=cx+','+cz;if(!force&&key===lastChunkKey)return;lastChunkKey=key;
  const radius=mobileLayout?2:3,wanted=new Set();for(let ix=cx-radius;ix<=cx+radius;ix++)for(let iz=cz-radius;iz<=cz+radius;iz++){if(ix*120+120<-185)continue;const id=ix+','+iz;wanted.add(id);if(!worldChunks.has(id))worldChunks.set(id,buildChunk(ix,iz));}
- for(const [id,chunk] of worldChunks)if(!wanted.has(id)){scene.remove(chunk.group);chunk.group.traverse(o=>{if(o.isInstancedMesh)o.dispose();});chunk.group.userData.ownGeometry?.dispose();worldChunks.delete(id);}for(const object of starterObjects)object.visible=true;water.visible=true;water.position.z=Math.floor(pos.z/300)*300;water.position.x=Math.min(-605,pos.x-100);
+ for(const [id,chunk] of worldChunks)if(!wanted.has(id)){scene.remove(chunk.group);chunk.group.traverse(o=>{if(o.isInstancedMesh)o.dispose();});chunk.group.userData.ownGeometry?.dispose();worldChunks.delete(id);}const nearStarter=Math.abs(pos.z)<680&&pos.x<660&&pos.x>-620;for(const object of starterObjects)object.visible=nearStarter;water.visible=true;water.position.z=Math.floor(pos.z/300)*300;water.position.x=Math.min(-605,pos.x-100);
 }
 updateWorld(new THREE.Vector3(-112,0,42));
 // Vehicles stay hidden until the detailed mesh is ready; no block-shaped fallback.
