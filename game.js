@@ -3,7 +3,7 @@ import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {RGBELoader} from './vendor/RGBELoader.js';
 import {DRACOLoader} from './vendor/DRACOLoader.js';
 import {clone} from './vendor/SkeletonUtils.js';
-const $=id=>document.getElementById(id);window.addEventListener('error',e=>{const el=document.getElementById('error');if(el){el.classList.remove('hidden');el.textContent='Render error: '+(e.error?.stack||e.message);}});
+const $=id=>document.getElementById(id);
 const touchHardware=matchMedia('(any-pointer:coarse)').matches||navigator.maxTouchPoints>0;
 let manualTouch=false;try{manualTouch=localStorage.getItem('coastline-joystick')==='on';}catch{}
 let mobileLayout=manualTouch||touchHardware||innerWidth<=900||new URLSearchParams(location.search).has('mobile');
